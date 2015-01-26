@@ -1,6 +1,6 @@
 ;;; semantic/bovine/gcc.el --- gcc querying special code for the C parser
 
-;; Copyright (C) 2008-2013 Free Software Foundation, Inc.
+;; Copyright (C) 2008-2015 Free Software Foundation, Inc.
 
 ;; Author: Eric M. Ludlam <eric@siege-engine.com>
 
@@ -25,10 +25,14 @@
 ;; GCC, and set up the preprocessor and include paths.
 
 (require 'semantic/dep)
+(require 'semantic/lex-spp)
 
 (defvar semantic-lex-c-preprocessor-symbol-file)
 (defvar semantic-lex-c-preprocessor-symbol-map)
 (declare-function semantic-c-reset-preprocessor-symbol-map "semantic/bovine/c")
+
+;; TODO: Make this a defcustom.
+(defvar semantic-gcc-get-preprocessor-macros nil)
 
 ;;; Code:
 
@@ -232,6 +236,141 @@ It should also include other symbols GCC was compiled with.")
     (when (featurep 'semantic/bovine/c)
       (semantic-c-reset-preprocessor-symbol-map))
     nil))
+
+;; Obtaining preprocessor macros.
+
+(defvar semantic-gcc-got-macros nil)
+(make-variable-buffer-local 'semantic-gcc-got-macros)
+
+;; Function for hook
+(defun semantic-gcc-get-macros-for-lexer (start end)
+  "Use GCC to obtain macro definitions from includes."
+  (when (and semantic-gcc-get-preprocessor-macros
+	     (not semantic-gcc-got-macros)
+	     (not (string-match ".*preprocessed.*" (buffer-name))))
+    (semantic-gcc-get-macros)))
+
+(defun semantic-gcc-buffer-name ()
+  "Preprocessor buffer name for current file."
+  (concat " *" (buffer-name (current-buffer)) " preprocessed*"))
+
+(defun semantic-gcc-get-macros ()
+  "Get preprocessor definitions from includes."
+  (interactive)
+  (let* ((lang (if (eq major-mode 'c++-mode) "c++" "c"))
+	 (buffer
+	  (with-current-buffer (get-buffer-create
+				(semantic-gcc-buffer-name))
+	    (erase-buffer)
+	    (current-buffer)))
+	 (args (semantic-gcc-args-from-project)))
+    ;; Add system include paths
+    (setq args
+	  (append args
+		  (mapcar
+		   (lambda (path)
+		     (concat "-I" path))
+		   semantic-dependency-system-include-path)))
+    ;; Get all #include's for current buffer.
+    (save-excursion
+      (goto-char (point-min))
+      (while (re-search-forward "^\\s-*#\\s-*include \\(.+\\)" nil t)
+	(let ((include (match-string-no-properties 1)))
+	  (with-current-buffer buffer
+	    (insert "#include " include "\n")))))
+    ;; Call gcc to get macros.
+    (with-current-buffer buffer
+      (let ((end (point)))
+	(apply 'call-process-region (point-min) (point-max)
+	       "gcc" nil buffer nil "-E" "-dM" "-x" lang
+	       (append  args (list "-")))
+	(delete-region (point-min) end)))
+    ;; Parse macros and put them in the lex-spp obarray.
+    (semantic-gcc-parse-macros (current-buffer) buffer)
+    (setq semantic-gcc-got-macros t))
+  t)
+
+(defun semantic-gcc-parse-macros (origbuf macrosbuf)
+  (with-current-buffer macrosbuf
+    (goto-char (point-min))
+    ;; Delete all macros which are already defined in the original
+    ;; buffer
+    (while (re-search-forward "^#define \\(.+\\) " nil t)
+      (let ((name (match-string 1)))
+	(when (with-current-buffer origbuf
+		(semantic-lex-spp-symbol-p name))
+	  (delete-region (point-at-bol) (point-at-eol)))))
+    (let ((c-mode-common-hook nil)
+	  (c-mode-hook nil)
+	  (c++-mode-hook nil)
+	  (prog-mode-hook nil))
+      (condition-case nil
+	  (c++-mode)
+	(error nil)))
+    (activate-mode-local-bindings)
+    (semantic-default-c-setup)
+    (setq semantic-new-buffer-fcn-was-run t)
+    (semantic-lex-init)
+    (semantic-clear-toplevel-cache)
+    (remove-hook 'semantic-lex-reset-functions
+    		 'semantic-lex-spp-reset-hook t)
+    (let ((tags (semantic-parse-region (point-min) (point-max))))
+      (dolist (cur tags)
+    	(let* ((name (semantic-tag-name cur))
+    	       (symbol (semantic-lex-spp-symbol name))
+    	       (value (symbol-value symbol)))
+    	  (with-current-buffer origbuf
+    	    (semantic-lex-spp-symbol-set name value)))))))
+
+(defun semantic-gcc-args-from-project ()
+  "Return list of additional arguments for the compiler from the project.
+If the current buffer is part of an EDE project, return a list of
+additional arguments for the compiler; currently, this deals with
+include directories (-I) and preprocessor symbols (-D)."
+  (let ((proj ede-object-root-project)
+	(tarproj ede-object))
+    (when proj
+      (cond
+       ;; For ede-cpp-root-project it's easy
+       ((ede-cpp-root-project-child-p proj)
+	(append
+	 (mapcar (lambda (inc) (concat "-I" inc))
+		 (append (mapcar (lambda (x) (concat (ede-project-root-directory proj) x))
+				 (oref proj include-path))
+			 (oref proj system-include-path)))
+	 (mapcar (lambda (spp) (concat "-D" (car spp)
+				       (when (cdr spp)
+					 (concat "=" (cadr spp)))))
+		 (oref proj spp-table))
+	 (list (concat "-I" (ede-project-root-directory proj)))))
+       ;; Similarly for ede-linux-project
+       ((ede-linux-project-child-p proj)
+	(let* ((root (ede-project-root-directory proj))
+	       (dir (file-name-directory (buffer-file-name)))
+	       (rel-dir (substring dir (length root))))
+	  (append
+	   (list (format "-include%s/include/linux/kconfig.h" root))
+	   (mapcar (lambda (inc) (concat "-I" inc))
+		   (oref proj include-path))
+	   (list (concat "-I" root rel-dir)
+		 (concat "-I" (oref proj build-directory) rel-dir)
+		 "-D__KERNEL__"))))
+       ;; For more general project types it's a bit more difficult.
+       ((ede-proj-project-p proj)
+	;; Get the local and configuration variables.
+	(let ((vars (mapcar 'cdr (oref proj variables))))
+	  (when (slot-boundp tarproj 'configuration-variables)
+	    (setq vars (append vars
+			       (mapcar 'cdr
+				       (cdr (oref tarproj configuration-variables))))))
+	  ;; Get includes and preprocessor symbols.
+	  (setq vars (apply 'append (mapcar 'split-string vars)))
+	  (append (list (concat "-I" (ede-project-root-directory proj)))
+		  (delq nil
+			(mapcar (lambda (var)
+				  (when (string-match "^\\(-I\\|-D\\)" var)
+				    var))
+				vars)))))))))
 
 (provide 'semantic/bovine/gcc)
 
