@@ -230,7 +230,7 @@ This just an alias for `semanticdb-mozrepl-activate'.")
 
 ;;; Filename based methods
 ;;
-(defmethod semanticdb-get-database-tables ((obj semanticdb-project-database-mozrepl))
+(cl-defmethod semanticdb-get-database-tables ((obj semanticdb-project-database-mozrepl))
   "For a mozrepl database, there are no explicit tables.
 Create one of our special tables that can act as an intermediary."
   ;; NOTE: This method overrides an accessor for the `tables' slot in
@@ -243,21 +243,21 @@ Create one of our special tables that can act as an intermediary."
       (oset obj tables (list newtable))
       (oset newtable parent-db obj)
       (oset newtable tags nil)))
-  (call-next-method))
+  (cl-call-next-method))
 
-(defmethod semanticdb-file-table ((obj semanticdb-project-database-mozrepl) filename)
+(cl-defmethod semanticdb-file-table ((obj semanticdb-project-database-mozrepl) filename)
   "From OBJ, return FILENAME's associated table object."
   ;; NOTE: See note for `semanticdb-get-database-tables'.
   (car (semanticdb-get-database-tables obj)))
 
-(defmethod semanticdb-get-tags ((table semanticdb-table-mozrepl ))
+(cl-defmethod semanticdb-get-tags ((table semanticdb-table-mozrepl ))
   "Return the list of tags belonging to TABLE."
   ;; NOTE: Omniscient databases probably don't want to keep large tables
   ;;       lolly-gagging about.  Keep internal tables empty and
   ;;       refer to alternate databases when you need something.
   nil)
 
-(defmethod semanticdb-equivalent-mode ((table semanticdb-table-mozrepl) &optional buffer)
+(cl-defmethod semanticdb-equivalent-mode ((table semanticdb-table-mozrepl) &optional buffer)
   "Return non-nil if TABLE's mode is equivalent to BUFFER.
 Equivalent modes are specified by by `semantic-equivalent-major-modes'
 local variable."
@@ -296,12 +296,12 @@ database (if available.)"
 ;; NOTE WHEN IMPLEMENTING: Be sure to add doc-string updates explaining
 ;; how your new search routines are implemented.
 ;;
-(defmethod semanticdb-find-tags-by-name-method
+(cl-defmethod semanticdb-find-tags-by-name-method
   ((table semanticdb-table-mozrepl) name &optional tags)
   "Find all tags named NAME in TABLE.
 Return a list of tags by calling 'inspect' on NAME through mozrepl."
   (if tags
-      (call-next-method)
+      (cl-call-next-method)
     (when semanticdb-mozrepl-proc
       (let ((start 0)
 	    members res)
@@ -316,22 +316,22 @@ Return a list of tags by calling 'inspect' on NAME through mozrepl."
 	  (list
 	   (semantic-tag-new-type name nil members nil)))))))
 
-(defmethod semanticdb-find-tags-by-name-regexp-method
+(cl-defmethod semanticdb-find-tags-by-name-regexp-method
   ((table semanticdb-table-mozrepl) regex &optional tags)
   "Find all tags with name matching REGEX in TABLE.
 Optional argument TAGS is a list of tags to search.
 Return a list of tags."
-  (if tags (call-next-method)
+  (if tags (cl-call-next-method)
     ;; YOUR IMPLEMENTATION HERE
     ))
 
-(defmethod semanticdb-find-tags-for-completion-method
+(cl-defmethod semanticdb-find-tags-for-completion-method
   ((table semanticdb-table-mozrepl) prefix &optional tags)
   "In TABLE, find all occurances of tags matching PREFIX.
 Optional argument TAGS is a list of tags to search.  Returns a
 table of all matching tags by calling 'search' through mozrepl."
   (if tags
-      (call-next-method)
+      (cl-call-next-method)
     (when semanticdb-mozrepl-proc
       (let ((start 0)
 	    str results)
@@ -352,21 +352,21 @@ table of all matching tags by calling 'search' through mozrepl."
 ;; alone, otherwise replace with implementations similar to those
 ;; above.
 ;;
-(defmethod semanticdb-deep-find-tags-by-name-method
+(cl-defmethod semanticdb-deep-find-tags-by-name-method
   ((table semanticdb-table-mozrepl) name &optional tags)
   "Find all tags name NAME in TABLE.
 Optional argument TAGS is a list of tags t
 Like `semanticdb-find-tags-by-name-method' for mozrepl."
   (semanticdb-find-tags-by-name-method table name tags))
 
-(defmethod semanticdb-deep-find-tags-by-name-regexp-method
+(cl-defmethod semanticdb-deep-find-tags-by-name-regexp-method
   ((table semanticdb-table-mozrepl) regex &optional tags)
   "Find all tags with name matching REGEX in TABLE.
 Optional argument TAGS is a list of tags to search.
 Like `semanticdb-find-tags-by-name-method' for mozrepl."
   (semanticdb-find-tags-by-name-regexp-method table regex tags))
 
-(defmethod semanticdb-deep-find-tags-for-completion-method
+(cl-defmethod semanticdb-deep-find-tags-for-completion-method
   ((table semanticdb-table-mozrepl) prefix &optional tags)
   "In TABLE, find all occurances of tags matching PREFIX.
 Optional argument TAGS is a list of tags to search.

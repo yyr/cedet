@@ -75,11 +75,11 @@ A nil/empty value means to use the default value from the Arduino IDE preference
    )
   "User Configuration object for a arduino project.")
 
-(defmethod eieio-done-customizing ((config ede-arduino-config))
+(cl-defmethod eieio-done-customizing ((config ede-arduino-config))
   "Called when EIEIO is done customizing the configuration object.
 Force the boardobj slot to be flushed."
   (oset config boardobj nil)
-  (call-next-method))
+  (cl-call-next-method))
 
 ;;; CLASSES
 ;;
@@ -104,14 +104,14 @@ Force the boardobj slot to be flushed."
    )
   "EDE Arduino project.")
 
-(defmethod ede-find-subproject-for-directory ((proj ede-arduino-project)
+(cl-defmethod ede-find-subproject-for-directory ((proj ede-arduino-project)
 					      dir)
   "Return PROJ, for handling all subdirs below DIR."
   proj)
 
 ;;; TARGET MANAGEMENT
 ;;
-(defmethod ede-find-target ((proj ede-arduino-project) buffer)
+(cl-defmethod ede-find-target ((proj ede-arduino-project) buffer)
   "Find an EDE target in PROJ for BUFFER.
 If one doesn't exist, create a new one for this directory."
   (let* ((targets (oref proj targets))
@@ -253,7 +253,7 @@ Uses `serial-term'."
     (term-line-mode)
     ))
 
-(defmethod project-compile-project ((proj ede-arduino-project) &optional command)
+(cl-defmethod project-compile-project ((proj ede-arduino-project) &optional command)
   "Compile the entire current project PROJ.
 Argument COMMAND is the command to use when compiling."
   ;; 1) Create the mini-makefile.
@@ -262,26 +262,26 @@ Argument COMMAND is the command to use when compiling."
   (compile (or command "make"))
   )
 
-(defmethod project-compile-target ((obj ede-arduino-target) &optional command)
+(cl-defmethod project-compile-target ((obj ede-arduino-target) &optional command)
   "Compile the current target OBJ.
 Argument COMMAND is the command to use for compiling the target."
   (project-compile-project (ede-current-project) command))
 
-(defmethod project-debug-target ((target ede-arduino-target))
+(cl-defmethod project-debug-target ((target ede-arduino-target))
   "Run the current project derived from TARGET in a debugger."
   (error "No Debugger support for Arduino."))
 
-(defmethod project-rescan ((this ede-arduino-project))
+(cl-defmethod project-rescan ((this ede-arduino-project))
   "Rescan all project files associated with THIS project."
-  (call-next-method)
+  (cl-call-next-method)
   (ede-arduino-sync))
 
 ;;; C/C++ support
 (require 'semantic/db)
-(defmethod ede-preprocessor-map ((this ede-arduino-target))
+(cl-defmethod ede-preprocessor-map ((this ede-arduino-target))
   "Get the pre-processor map for some generic C code."
   ;; wiring.h and pins_arduino.h have lots of #defines in them.
-  (let* ((fromconfig (call-next-method))
+  (let* ((fromconfig (cl-call-next-method))
 	 (wiring_h (expand-file-name "hardware/arduino/cores/arduino/wiring.h"
 				     (ede-arduino-find-install)))
 	 (table (when (and wiring_h (file-exists-p wiring_h))
@@ -298,9 +298,9 @@ Argument COMMAND is the command to use for compiling the target."
     (append filemap fromconfig)
     ))
 
-(defmethod ede-system-include-path ((this ede-arduino-target))
+(cl-defmethod ede-system-include-path ((this ede-arduino-target))
   "Get the system include path used by project THIS."
-  (let* ((fromconfig (call-next-method))
+  (let* ((fromconfig (cl-call-next-method))
 	 (prefs (ede-arduino-sync))
 	 (iphardware (expand-file-name "hardware/arduino/cores/arduino"
 				       (ede-arduino-find-install)))
@@ -316,7 +316,7 @@ Argument COMMAND is the command to use for compiling the target."
 ;;
 ;; Pull in configuration lines from config, or perhaps from the
 ;; official preferences if the config file isn't empty.
-(defmethod ede-arduino-boardobj ((this ede-arduino-project))
+(cl-defmethod ede-arduino-boardobj ((this ede-arduino-project))
   "Fetch the board name to use for THIS project."
   (let* ((config (ede-config-get-configuration this))
 	 (board (oref config board))
@@ -338,7 +338,7 @@ Argument COMMAND is the command to use for compiling the target."
 	;; User never tried the config file, just provide the preferences.
 	(oref prefs boardobj)))))
 
-(defmethod ede-arduino-port ((this ede-arduino-project))
+(cl-defmethod ede-arduino-port ((this ede-arduino-project))
   "Fetch the board name to use for THIS project."
   (let* ((config (ede-config-get-configuration this))
 	 (port (oref config port))
@@ -359,7 +359,7 @@ Argument COMMAND is the command to use for compiling the target."
   (interactive)
   (ede-arduino-create-makefile (ede-current-project)))
 
-(defmethod ede-arduino-create-makefile ((proj ede-arduino-project))
+(cl-defmethod ede-arduino-create-makefile ((proj ede-arduino-project))
   "Create an arduino based Makefile for project PROJ."
   (let* ((mfilename (expand-file-name ede-arduino-makefile-name
 				     (oref proj directory)))

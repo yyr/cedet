@@ -64,15 +64,15 @@ ROOTPROJ is nil, since there is only one project."
   "EDE Leiningen2 project class."
   :method-invocation-order :depth-first)
 
-(defmethod initialize-instance ((this ede-lein2-project)
+(cl-defmethod initialize-instance ((this ede-lein2-project)
                                 &rest fields)
   "Make sure the all slots are setup."
-  (call-next-method)
+  (cl-call-next-method)
   (ede-normalize-file/directory this ede-lein2-project-file-name)
   ;; TODO: add analysis of project.clj
   )
 
-(defmethod project-compile-project ((proj ede-lein2-project) &optional command)
+(cl-defmethod project-compile-project ((proj ede-lein2-project) &optional command)
   "Compile the entire current project PROJ.
 Argument COMMAND is the command to use when compiling."
   ;; we need to be in the proj root dir for this to work
@@ -84,7 +84,7 @@ Argument COMMAND is the command to use when compiling."
 ;;; Classpath-related stuff
 (defconst lein2-outfile-name "lein-classpath")
 
-(defmethod ede-java-classpath ((proj ede-lein2-project))
+(cl-defmethod ede-java-classpath ((proj ede-lein2-project))
   "Get classpath for Lein project"
   (ede-jvm-get-classpath-from-command proj ede-lein2-execute-lein-to-get-classpath
 				      lein2-outfile-name ede-lein2-lein-command
@@ -92,7 +92,7 @@ Argument COMMAND is the command to use when compiling."
 					     ,lein2-outfile-name)))
 
 ;; TODO: really should be based on content of project.clj file. But we need parser for it...
-(defmethod ede-source-paths ((proj ede-lein2-project) mode)
+(cl-defmethod ede-source-paths ((proj ede-lein2-project) mode)
   "Get the base to all source trees in the current project for MODE."
   (let ((dir (ede-project-root-directory proj)))
     (mapcar (lambda (x) (concat dir x))
@@ -101,7 +101,7 @@ Argument COMMAND is the command to use when compiling."
 	     ((eq mode 'clojure-mode) '("src" "test"))))))
 
 ;; TODO: re-implement when pom.xml parser will be available
-(defmethod project-rescan ((proj ede-lein2-project))
+(cl-defmethod project-rescan ((proj ede-lein2-project))
   "Rescan the EDE proj project THIS."
   (when (ede-jvm-base-file-updated-p proj)
     ;; TODO: fill information

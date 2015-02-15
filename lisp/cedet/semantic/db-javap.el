@@ -156,25 +156,25 @@ See `semantic-create-proxy-tag' for details.")
    )
   "Table which represents the classes found in files in series of diretories.")
 
-(defmethod semanticdb-table-java-package ((table semanticdb-table-java-directory))
+(cl-defmethod semanticdb-table-java-package ((table semanticdb-table-java-directory))
   "Get the package name to use for this database as a directory."
   (oref table directory))
 
-(defmethod initialize-instance :AFTER ((table semanticdb-table-java-directory) &rest args)
+(cl-defmethod initialize-instance :after ((table semanticdb-table-java-directory) &rest args)
   "After TABLE is initialized, make sure basic features are set."
   (oset table proxy (semantic-create-tag-proxy 'semanticdb-javap-resolve-proxy table))
   )
 
-(defmethod semanticdb-refresh-table ((obj semanticdb-table-java-directory) &optional force)
+(cl-defmethod semanticdb-refresh-table ((obj semanticdb-table-java-directory) &optional force)
   "Java Directories should be refreshed when files in the directory hange.
 No nothing for now."
   nil)
 
-(defmethod semanticdb-needs-refresh-p ((obj semanticdb-table-java-directory))
+(cl-defmethod semanticdb-needs-refresh-p ((obj semanticdb-table-java-directory))
   "Return nil, we don't need a refresh until we figure out directory tracking."
   nil)
 
-(defmethod semanticdb-equivalent-mode ((table semanticdb-table-java-directory) &optional buffer)
+(cl-defmethod semanticdb-equivalent-mode ((table semanticdb-table-java-directory) &optional buffer)
   "Return non-nil if TABLE's mode is equivalent to BUFFER.
 Equivalent modes are specified by the `semantic-equivalent-major-modes'
 local variable."
@@ -186,7 +186,7 @@ local variable."
 ;; The tags produced are faux tags that have a file, but no details.  They
 ;; need to be normalized, or converted into a full formed tag by reading in
 ;; the file they are originated from.
-(defmethod semanticdb-normalize-tags ((obj semanticdb-table-java-directory) tags)
+(cl-defmethod semanticdb-normalize-tags ((obj semanticdb-table-java-directory) tags)
   "Convert tags found by our java directory table into a complete tag.
 The default tag just has a name, type, and the filename.  Normalize by
 loading in the file it belongs to, and looking up that symbol in the file
@@ -206,7 +206,7 @@ and returning that tag instead."
 	  (setq tagret (cons FT tagret)))))
     tagret))
 
-(defmethod semanticdb-javap-resolve-proxy ((obj semanticdb-table-java-directory) tag)
+(cl-defmethod semanticdb-javap-resolve-proxy ((obj semanticdb-table-java-directory) tag)
   "For the javap table OBJ, Resolve the proxy in TAG."
   (car (semanticdb-normalize-tags obj (list tag))))
 
@@ -215,7 +215,7 @@ and returning that tag instead."
 ;; The best way to get new types easilly discovered is to directly support the
 ;; typecache.  Sine out database is full of file names with one class per file,
 ;; we can easily create the tags based on the files.
-(defmethod semanticdb-typecache-file-tags ((table semanticdb-table-java-directory))
+(cl-defmethod semanticdb-typecache-file-tags ((table semanticdb-table-java-directory))
   "Create a list of tags from the files in the directory represented by this table."
   (let* ((dir (oref table directory))
 	 (files (directory-files dir t "\\.java$"))
@@ -239,11 +239,11 @@ Assume a file foo.java will become a class called foo."
       (semantic-tag-set-proxy tag (oref db :proxy) file)
       tag)))
 
-(defmethod semanticdb-find-tags-by-name-method ((table semanticdb-table-java-directory) name &optional tags)
+(cl-defmethod semanticdb-find-tags-by-name-method ((table semanticdb-table-java-directory) name &optional tags)
   "In TABLE, find all occurrences of tags with NAME.
 Optional argument TAGS is a list of tags to search.
 Returns a list of all files in this table's directory that matches NAME."
-  (if tags (call-next-method)
+  (if tags (cl-call-next-method)
     ;; Look for a file matching NAME.
     (let* ((dir (oref table directory))
 	   (files (directory-files dir t (concat "^" (regexp-quote name) "\\.java")))
@@ -252,11 +252,11 @@ Returns a list of all files in this table's directory that matches NAME."
 	(setq tags (cons (semanticdb-javap-file-to-tag F table) tags)))
       tags)))
 	
-(defmethod semanticdb-find-tags-by-name-regexp-method ((table semanticdb-table-java-directory) regexp &optional tags)
+(cl-defmethod semanticdb-find-tags-by-name-regexp-method ((table semanticdb-table-java-directory) regexp &optional tags)
   "In TABLE, find all occurrences of tags matching REGEXP.
 Optional argument TAGS is a list of tags to search.
 Returns a list of all files in this table's directory that matches REGEXP."
-  (if tags (call-next-method)
+  (if tags (cl-call-next-method)
     ;; Look for a file matching NAME.
     (let* ((dir (oref table directory))
 	   (files (directory-files dir t regexp))
@@ -265,11 +265,11 @@ Returns a list of all files in this table's directory that matches REGEXP."
 	(setq tags (cons (semanticdb-javap-file-to-tag F table) tags)))
       tags)))
 	
-(defmethod semanticdb-find-tags-for-completion-method ((table semanticdb-table-java-directory) prefix &optional tags)
+(cl-defmethod semanticdb-find-tags-for-completion-method ((table semanticdb-table-java-directory) prefix &optional tags)
   "In TABLE, find all occurrences of tags starting with PREFIX.
 Optional argument TAGS is a list of tags to search.
 Returns a list of all files in this table's directory that matches REGEXP."
-  (if tags (call-next-method)
+  (if tags (cl-call-next-method)
     ;; Look for a file matching NAME.
     (let* ((dir (oref table directory))
 	   (files (directory-files dir t (concat "^" (regexp-quote prefix))))
@@ -307,32 +307,32 @@ See `semantic-create-proxy-tag' for details.")
    )
   "Table which represents the classes found in files in series of diretories.")
 
-(defmethod semanticdb-table-java-package ((table semanticdb-table-jar-directory))
+(cl-defmethod semanticdb-table-java-package ((table semanticdb-table-jar-directory))
   "Get the package name to use for this database."
   (oref table directory))
 
-(defmethod initialize-instance :AFTER ((table semanticdb-table-jar-directory) &rest args)
+(cl-defmethod initialize-instance :after ((table semanticdb-table-jar-directory) &rest args)
   "After TABLE is initialized, make sure basic features are set."
   (oset table proxy (semantic-create-tag-proxy 'semanticdb-javap-resolve-proxy table))
   )
 
-(defmethod semanticdb-refresh-table ((obj semanticdb-table-jar-directory) &optional force)
+(cl-defmethod semanticdb-refresh-table ((obj semanticdb-table-jar-directory) &optional force)
   "Java Directories should be refreshed when files in the directory hange.
 No nothing for now."
   nil)
 
-(defmethod semanticdb-needs-refresh-p ((obj semanticdb-table-jar-directory))
+(cl-defmethod semanticdb-needs-refresh-p ((obj semanticdb-table-jar-directory))
   "Return nil, we don't need a refresh until we figure out directory tracking."
   nil)
 
-(defmethod semanticdb-equivalent-mode ((table semanticdb-table-jar-directory) &optional buffer)
+(cl-defmethod semanticdb-equivalent-mode ((table semanticdb-table-jar-directory) &optional buffer)
   "Return non-nil if TABLE's mode is equivalent to BUFFER.
 Equivalent modes are specified by the `semantic-equivalent-major-modes'
 local variable."
   t
   )
 
-(defmethod object-print ((obj semanticdb-table-jar-directory) &rest strings)
+(cl-defmethod object-print ((obj semanticdb-table-jar-directory) &rest strings)
   "Pretty printer extension for `semanticdb-table-jar-directory'.
 Adds the number of tags in this file to the object print name."
   (apply 'call-next-method obj
@@ -346,7 +346,7 @@ Adds the number of tags in this file to the object print name."
 ;; The tags produced are faux tags that have a file, but no details.  They
 ;; need to be normalized, or converted into a full formed tag by reading in
 ;; the file they are originated from.
-(defmethod semanticdb-jar-extract-and-save-tags ((obj semanticdb-table-jar-directory) tagfname)
+(cl-defmethod semanticdb-jar-extract-and-save-tags ((obj semanticdb-table-jar-directory) tagfname)
   "Extract the tags from TAGFNAME from the database jar file.
 Save the tags in our table in the tag hash.
 If it is already in the tag hash, then just return that."
@@ -368,7 +368,7 @@ If it is already in the tag hash, then just return that."
 	nil
       realtable)))
 
-(defmethod semanticdb-normalize-tags ((obj semanticdb-table-jar-directory) tags)
+(cl-defmethod semanticdb-normalize-tags ((obj semanticdb-table-jar-directory) tags)
   "Convert tags found by our java directory table into a complete tag.
 The default tag just has a name, type, and the filename.  Normalize by
 loading in the file it belongs to, and looking up that symbol in the file
@@ -385,7 +385,7 @@ and returning that tag instead."
 	  (setq tagret (cons FT tagret)))))
     tagret))
 
-(defmethod semanticdb-javap-resolve-proxy ((obj semanticdb-table-jar-directory) tag)
+(cl-defmethod semanticdb-javap-resolve-proxy ((obj semanticdb-table-jar-directory) tag)
   "For the javap table OBJ, Resolve the proxy in TAG."
   (car (semanticdb-normalize-tags obj (list tag))))
 
@@ -394,7 +394,7 @@ and returning that tag instead."
 ;; The best way to get new types easilly discovered is to directly support the
 ;; typecache.  Sine out database is full of file names with one class per file,
 ;; we can easily create the tags based on the files.
-(defmethod semanticdb-typecache-file-tags ((table semanticdb-table-jar-directory))
+(cl-defmethod semanticdb-typecache-file-tags ((table semanticdb-table-jar-directory))
   "Create a list of tags from the files in the directory represented by this table."
   (let* ((dir (oref table directory))
 	 (files (oref table filenamecache))
@@ -405,7 +405,7 @@ and returning that tag instead."
     ;; so the typecache can fix them.
     tags))
 
-(defmethod semanticdb-table-javap-table-as-faux-tag ((table semanticdb-table-jar-directory))
+(cl-defmethod semanticdb-table-javap-table-as-faux-tag ((table semanticdb-table-jar-directory))
   "Convert a database into a faux tag which child tags.
 The child tags will NOT have additional child tags.  This is solely to solve
 the problem of completion engines that only need to drop down a single level
@@ -443,11 +443,11 @@ Solve this some other time."
 
 ;;; Search Utils
 ;;
-(defmethod semanticdb-find-tags-by-name-method ((table semanticdb-table-jar-directory) name &optional tags)
+(cl-defmethod semanticdb-find-tags-by-name-method ((table semanticdb-table-jar-directory) name &optional tags)
   "In TABLE, find all occurrences of tags with NAME.
 Optional argument TAGS is a list of tags to search.
 Returns a list of all files in this table's directory that matches NAME."
-  (if tags (call-next-method)
+  (if tags (cl-call-next-method)
     ;; Look for a file matching NAME.
     (let* ((dir (oref table directory))
 	   (files (oref table filenamecache))
@@ -458,11 +458,11 @@ Returns a list of all files in this table's directory that matches NAME."
 	  (setq tags (cons (semanticdb-javap-file-to-tag F table) tags))))
       tags)))
 	
-(defmethod semanticdb-find-tags-by-name-regexp-method ((table semanticdb-table-jar-directory) regexp &optional tags)
+(cl-defmethod semanticdb-find-tags-by-name-regexp-method ((table semanticdb-table-jar-directory) regexp &optional tags)
   "In TABLE, find all occurrences of tags matching REGEXP.
 Optional argument TAGS is a list of tags to search.
 Returns a list of all files in this table's directory that matches REGEXP."
-  (if tags (call-next-method)
+  (if tags (cl-call-next-method)
     ;; Look for a file matching NAME.
     (let* ((dir (oref table directory))
 	   (files (oref table filenamecache))
@@ -472,11 +472,11 @@ Returns a list of all files in this table's directory that matches REGEXP."
 	  (setq tags (cons (semanticdb-javap-file-to-tag F table) tags))))
       tags)))
 	
-(defmethod semanticdb-find-tags-for-completion-method ((table semanticdb-table-jar-directory) prefix &optional tags)
+(cl-defmethod semanticdb-find-tags-for-completion-method ((table semanticdb-table-jar-directory) prefix &optional tags)
   "In TABLE, find all occurrences of tags starting with PREFIX.
 Optional argument TAGS is a list of tags to search.
 Returns a list of all files in this table's directory that matches REGEXP."
-  (if tags (call-next-method)
+  (if tags (cl-call-next-method)
     ;; Look for a file matching NAME.
     (let* ((dir (oref table directory))
 	   (files (oref table filenamecache))
@@ -506,11 +506,11 @@ Returns a list of all files in this table's directory that matches REGEXP."
    )
   "Table which represents the classes found in files in series of diretories.")
 
-(defmethod semanticdb-table-java-package ((table semanticdb-table-jar-file))
+(cl-defmethod semanticdb-table-java-package ((table semanticdb-table-jar-file))
   "Get the package name to use for this database as a directory."
   (file-name-directory (oref table filename)))
 
-(defmethod semanticdb-refresh-table ((obj semanticdb-table-jar-file) &optional force)
+(cl-defmethod semanticdb-refresh-table ((obj semanticdb-table-jar-file) &optional force)
   "Java Directories should be refreshed when files in the directory hange.
 No nothing for now."
   (when (semanticdb-needs-refresh-p obj)
@@ -520,11 +520,11 @@ No nothing for now."
 		      jar (oref obj filename)))
       (oset obj needsrefresh nil))))
 
-(defmethod semanticdb-needs-refresh-p ((obj semanticdb-table-jar-file))
+(cl-defmethod semanticdb-needs-refresh-p ((obj semanticdb-table-jar-file))
   "Return nil, we don't need a refresh until we figure out directory tracking."
   (oref obj needsrefresh))
 
-(defmethod semanticdb-equivalent-mode ((table semanticdb-table-jar-file) &optional buffer)
+(cl-defmethod semanticdb-equivalent-mode ((table semanticdb-table-jar-file) &optional buffer)
   "Return non-nil if TABLE's mode is equivalent to BUFFER.
 Equivalent modes are specified by the `semantic-equivalent-major-modes'
 local variable."
@@ -597,7 +597,7 @@ using the same utility as looking for includes which are also fully qualified na
 ;; The best way to get new types easilly discovered is to directly support the
 ;; typecache.  Sine out database is full of file names with one class per file,
 ;; we can easily create the tags based on the files.
-(defmethod semanticdb-typecache-file-tags ((table semanticdb-table-jar-file))
+(cl-defmethod semanticdb-typecache-file-tags ((table semanticdb-table-jar-file))
   "Create a list of tags from the files in the directory represented by this table."
   (semanticdb-refresh-table table)
   ;; For regular files, there is a pile of logic to deal with
@@ -631,7 +631,7 @@ and file names.")
    )
   "Table which represents the classes found in files in series of diretories.")
 
-(defmethod semanticdb-create-database :STATIC ((dbc semanticdb-java-jar-database)
+(cl-defmethod semanticdb-create-database ((dbc (subclass semanticdb-java-jar-database))
 					       jarfile)
   "Create a new semantic database for JARFILE and return it.
 If a database for JARFILE has already been loaded, return it.
@@ -653,7 +653,7 @@ from JARFILE, and create a database for it."
       (semanticdb-java-jar-extract-names db))
     db))
 
-(defmethod object-print ((obj semanticdb-java-jar-database) &rest strings)
+(cl-defmethod object-print ((obj semanticdb-java-jar-database) &rest strings)
   "Pretty printer extension for `semanticdb-java-jar-database'.
 Adds the number of tags in this file to the object print name."
   (apply 'call-next-method obj
@@ -661,13 +661,13 @@ Adds the number of tags in this file to the object print name."
 		       (length (oref obj jarfilecache)))
 	       strings)))
 
-(defmethod semanticdb-java-jar-extract-names ((dbc semanticdb-java-jar-database))
+(cl-defmethod semanticdb-java-jar-extract-names ((dbc semanticdb-java-jar-database))
   "Extract the directory structure from the jar file associated with DBC.
 Store the structure in our database cache."
   (let ((strs (cedet-jar-table-of-contents (oref dbc reference-directory))))
     (oset dbc jarfilecache strs)))
 
-(defmethod semanticdb-file-table ((dbc semanticdb-java-jar-database) dir)
+(cl-defmethod semanticdb-file-table ((dbc semanticdb-java-jar-database) dir)
   "Return a database table from DBC for DIR (the file).
 This overrides the default `semanticdb-file-table' as this database creates
 tables of classes based on files, not files in a directory.
@@ -681,7 +681,7 @@ are extracted from, so no prefixes are added."
      ;; The dir may be a directory, so check that too.
      (object-assoc dir :directory (oref dbc tables)))))
 
-(defmethod semanticdb-create-table ((db semanticdb-java-jar-database) dirorfile)
+(cl-defmethod semanticdb-create-table ((db semanticdb-java-jar-database) dirorfile)
   "Create a new table in DB for DIR and return it.
 This overrides the default `semanticdb-create-table' as this database
 creates tables of classes based on files, not files in a directory.
@@ -715,7 +715,7 @@ If the table for DIR does not exist, create one."
 	    )))
       newtab)))
 
-(defmethod semanticdb-java-jar-package-files ((dbc semanticdb-java-jar-database) dir)
+(cl-defmethod semanticdb-java-jar-package-files ((dbc semanticdb-java-jar-database) dir)
   "Get the file class names from DBC that match DIR."
   (when (stringp dir)
     (setq dir (file-name-as-directory dir))
@@ -726,7 +726,7 @@ If the table for DIR does not exist, create one."
 	  (push F ans)))
       (nreverse ans))))
 
-(defmethod semanticdb-java-jar-package-one-file ((dbc semanticdb-java-jar-database) file)
+(cl-defmethod semanticdb-java-jar-package-one-file ((dbc semanticdb-java-jar-database) file)
   "Get the file class names from DBC that match FILE.
 File should exclude an extension, as .class will be added."
   (when (stringp file)
@@ -736,7 +736,7 @@ File should exclude an extension, as .class will be added."
 	  (push F ans)))
       (nreverse ans))))
 
-(defmethod semanticdb-java-jar-package-packages ((dbc semanticdb-java-jar-database) dir)
+(cl-defmethod semanticdb-java-jar-package-packages ((dbc semanticdb-java-jar-database) dir)
   "Get the package names from DBC that match DIR.
 DIR may already have some .class files in it (see `semanticdb-java-jar-package-files')
 while also having sub-packages."

@@ -44,14 +44,14 @@ on project's type."
   "Base project class for JVM-base projects."
   :method-invocation-order :depth-first)
 
-(defmethod ede-java-classpath ((proj ede-jvm-base-project))
+(cl-defmethod ede-java-classpath ((proj ede-jvm-base-project))
   "Generic implementation for JVM-based projects"
   (oref proj :classpath))
 
-(defmethod initialize-instance ((this ede-jvm-base-project)
+(cl-defmethod initialize-instance ((this ede-jvm-base-project)
                                 &rest fields)
   "Make sure the :targets is setup."
-  (call-next-method)
+  (cl-call-next-method)
   (unless (slot-boundp this 'targets)
     (oset this :targets nil)))
 
@@ -75,7 +75,7 @@ All directories need at least one target.")
 	))
     match))
 
-(defmethod ede-find-target ((proj ede-jvm-base-project) buffer)
+(cl-defmethod ede-find-target ((proj ede-jvm-base-project) buffer)
   "Find an EDE target in PROJ for BUFFER.
 If one doesn't exist, create a new one for this directory."
   (let* ((ext (file-name-extension (buffer-file-name buffer)))
@@ -94,7 +94,7 @@ If one doesn't exist, create a new one for this directory."
       (object-add-to-list proj :targets ans))
     ans))
 
-(defmethod project-compile-target ((obj ede-jvm-base-target) &optional command)
+(cl-defmethod project-compile-target ((obj ede-jvm-base-target) &optional command)
   "Compile the current target OBJ.
 Argument COMMAND is the command to use for compiling the target."
   (when (oref obj :project)
@@ -102,16 +102,16 @@ Argument COMMAND is the command to use for compiling the target."
 
 ;;; File Stuff
 ;;
-(defmethod ede-project-root-directory ((this ede-jvm-base-project)
+(cl-defmethod ede-project-root-directory ((this ede-jvm-base-project)
                                        &optional file)
   "Return the root for THIS project with file."
   (oref this :directory))
 
-(defmethod ede-project-root ((this ede-jvm-base-project))
+(cl-defmethod ede-project-root ((this ede-jvm-base-project))
   "Return my root."
   this)
 
-(defmethod ede-find-subproject-for-directory ((proj ede-jvm-base-project)
+(cl-defmethod ede-find-subproject-for-directory ((proj ede-jvm-base-project)
                                               dir)
   "Return PROJ, for handling all subdirs below DIR."
   proj)

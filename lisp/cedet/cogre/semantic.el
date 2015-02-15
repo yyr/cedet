@@ -71,7 +71,7 @@
    )
   "A peer containing a Semantic class.")
 
-(defmethod cogre-peer-source-file ((peer cogre-peer-semantic))
+(cl-defmethod cogre-peer-source-file ((peer cogre-peer-semantic))
   "Does this peer have a source file?"
   (with-slots (tag) peer
     (semantic-tag-file-name tag)))
@@ -107,7 +107,7 @@ Goes to the original location of TAG, and tries to re-find that tag."
       (when newtag
 	(semantic-tag-copy newtag nil t)))))
 
-(defmethod cogre-peer-update-from-source ((peer cogre-peer-semantic-class) node)
+(cl-defmethod cogre-peer-update-from-source ((peer cogre-peer-semantic-class) node)
   "Update the PEER object, and NODE from environment."
   (let* ((tag (oref peer tag))
 	 (newtag (cogre-refresh-tag tag))
@@ -153,7 +153,7 @@ Goes to the original location of TAG, and tries to re-find that tag."
       ;; Tada!
       )))
 
-(defmethod cogre-peer-jump-to-source ((peer cogre-peer-semantic-class) node)
+(cl-defmethod cogre-peer-jump-to-source ((peer cogre-peer-semantic-class) node)
   "Jump to the source stored in the tag in PEER.
 NODE is not used."
   (let ((tag (oref peer tag))
@@ -170,7 +170,7 @@ NODE is not used."
     ))
 
 
-(defmethod cogre-peer-update-from-element ((peer cogre-peer-semantic-class) element)
+(cl-defmethod cogre-peer-update-from-element ((peer cogre-peer-semantic-class) element)
   "Update the PEER object, from the ELEMENT data, changing the environment."
   (message "Cannot update source from graph yet.")
    nil)
@@ -235,7 +235,7 @@ while creating the tags."
 	(data-debug-show-stuff tags "CogreSemanticTagExport")
       tags)))
 
-(defmethod cogre-export-semantic-method ((g cogre-base-graph))
+(cl-defmethod cogre-export-semantic-method ((g cogre-base-graph))
   "Convert G into Semantic Tag for a typed language."
   (with-current-buffer (oref g buffer)
     ;; Sort the graph into a nested a tree.

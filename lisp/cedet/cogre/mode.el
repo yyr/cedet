@@ -32,6 +32,7 @@
 
 (require 'cogre/picture-hack)
 (require 'eieio)
+(require 'cl-generic)
 (require 'eieio-opt)
 (require 'eieio-base)
 (require 'eieio-custom)
@@ -230,7 +231,7 @@ Argument OLDFUN is removed NEWFUN is substituted in."
   "The tool-bar used for COGRE mode.")
 
 
-(defmethod cogre-insert-class-list ((graph cogre-base-graph))
+(cl-defmethod cogre-insert-class-list ((graph cogre-base-graph))
   "Return a list of classes GRAPH will accept."
   (eieio-build-class-alist 'cogre-graph-element))
 

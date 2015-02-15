@@ -165,10 +165,10 @@ ROOTPROJ is nil, since there is only one project."
   "Project Type for Maven2 based Java projects."
   :method-invocation-order :depth-first)
 
-(defmethod initialize-instance ((this ede-maven2-project)
+(cl-defmethod initialize-instance ((this ede-maven2-project)
                                 &rest fields)
   "Make sure the all targets as setup."
-  (call-next-method)
+  (cl-call-next-method)
   (ede-normalize-file/directory this ede-maven2-project-file-name)
   ;; TODO: add analysis of pom.xml
   )
@@ -179,7 +179,7 @@ ROOTPROJ is nil, since there is only one project."
 ;;  - 2nd compiles the child project the current file is a member of
 ;;maven error messages are recognized by emacs23
 
-(defmethod project-compile-project ((proj ede-maven2-project) &optional command)
+(cl-defmethod project-compile-project ((proj ede-maven2-project) &optional command)
   "Compile the entire current project PROJ.
 Argument COMMAND is the command to use when compiling."
   ;; we need to be in the proj root dir for this to work
@@ -193,7 +193,7 @@ Argument COMMAND is the command to use when compiling."
 ;;; Classpath-related...
 (defconst maven2-outfile-name "mvn-classpath")
 
-(defmethod ede-java-classpath ((proj ede-maven2-project))
+(cl-defmethod ede-java-classpath ((proj ede-maven2-project))
   "Get classpath for maven project"
   (ede-jvm-get-classpath-from-command proj ede-maven2-execute-mvn-to-get-classpath
 				      maven2-outfile-name ede-maven2-maven-command
@@ -203,7 +203,7 @@ Argument COMMAND is the command to use when compiling."
 
 ;; TODO: really should be based on content of pom.xml file. But we need parser for it...
 ;; TODO: add caching...
-(defmethod ede-source-paths ((proj ede-maven2-project) mode)
+(cl-defmethod ede-source-paths ((proj ede-maven2-project) mode)
   "Get the base to all source trees in the current project for MODE."
   (let ((dir (ede-project-root-directory proj)))
     (mapcar (lambda (x) (concat dir x))
@@ -212,7 +212,7 @@ Argument COMMAND is the command to use when compiling."
 	     ((eq mode 'clojure-mode) '("src/main/clojure" "src/test/clojure"))))))
 
 ;; TODO: re-implement when pom.xml parser will be available
-(defmethod project-rescan ((proj ede-maven2-project))
+(cl-defmethod project-rescan ((proj ede-maven2-project))
   "Rescan the EDE proj project THIS."
   (when (ede-jvm-base-file-updated-p proj)
     ;; TODO: fill information

@@ -27,6 +27,7 @@
 
 (require 'elp)
 (require 'eieio)
+(require 'cl-generic)
 (require 'data-debug)
 (require 'semantic/adebug)
 (require 'semantic/tag-ls)
@@ -339,7 +340,7 @@ Recorded outside of ELP.")
    )
   "Class for managing ELP data.")
 
-(defmethod semantic-elp-change-sort ((data semantic-elp-data) &optional newsort)
+(cl-defmethod semantic-elp-change-sort ((data semantic-elp-data) &optional newsort)
   "Change the sort in DATA object to NEWSORT."
   (cond ((eq newsort 'rotate)
 	 (let* ((arot '((time . avg)
@@ -386,7 +387,7 @@ Argument POINT is where to get the data from."
     (find-function (intern-soft (aref data 3)))
     ))
 
-(defmethod semantic-elp-dump-table ((data semantic-elp-data)
+(cl-defmethod semantic-elp-dump-table ((data semantic-elp-data)
 				    prefix)
   "dump out the current DATA table using PREFIX before each line."
   (let* ((elpd (oref data sorted))
@@ -413,7 +414,7 @@ Argument POINT is where to get the data from."
     )
   )
 
-(defmethod data-debug/eieio-insert-slots ((data semantic-elp-data)
+(cl-defmethod data-debug/eieio-insert-slots ((data semantic-elp-data)
 					  prefix)
   "Show the fields of ELP data in an adebug buffer.
 Ignore the usual, and format a nice table."

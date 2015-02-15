@@ -96,21 +96,21 @@ if optional DONT-ERR-IF-NOT-AVAILABLE is non-nil; else throw an error."
    )
   "A table for returning search results from CScope.")
 
-(defmethod semanticdb-equivalent-mode ((table semanticdb-table-cscope) &optional buffer)
+(cl-defmethod semanticdb-equivalent-mode ((table semanticdb-table-cscope) &optional buffer)
   "Return t, pretend that this table's mode is equivalent to BUFFER.
 Equivalent modes are specified by the `semantic-equivalent-major-modes'
 local variable."
   ;; @todo - hack alert!
   t)
 
-(defmethod object-print ((obj semanticdb-table-cscope) &rest strings)
+(cl-defmethod object-print ((obj semanticdb-table-cscope) &rest strings)
   "Pretty printer extension for `semanticdb-table-cscope'.
 Adds the number of tags in this file to the object print name."
   (apply 'call-next-method obj (cons " (proxy)" strings)))
 
 ;;; Filename based methods
 ;;
-(defmethod semanticdb-get-database-tables ((obj semanticdb-project-database-cscope))
+(cl-defmethod semanticdb-get-database-tables ((obj semanticdb-project-database-cscope))
   "For a cscope database, there are no explicit tables.
 For each file hit, get the traditional semantic table from that file."
   ;; We need to return something since there is always the "master table"
@@ -122,9 +122,9 @@ For each file hit, get the traditional semantic table from that file."
       (oset newtable tags nil)
       ))
 
-  (call-next-method))
+  (cl-call-next-method))
 
-(defmethod semanticdb-file-table ((obj semanticdb-project-database-cscope) filename)
+(cl-defmethod semanticdb-file-table ((obj semanticdb-project-database-cscope) filename)
   "From OBJ, return FILENAME's associated table object."
   ;; We pass in "don't load".  I wonder if we need to avoid that or not?
   (car (semanticdb-get-database-tables obj))
@@ -134,13 +134,13 @@ For each file hit, get the traditional semantic table from that file."
 ;;
 ;; Only NAME based searches work with CSCOPE as that is all it tracks.
 ;;
-(defmethod semanticdb-find-tags-by-name-method
+(cl-defmethod semanticdb-find-tags-by-name-method
   ((table semanticdb-table-cscope) name &optional tags)
   "Find all tags named NAME in TABLE.
 Return a list of tags."
   (if tags
       ;; If TAGS are passed in, then we don't need to do work here.
-      (call-next-method)
+      (cl-call-next-method)
     ;; Call out to Cscope for some results.
     (let* ((semantic-symref-tool 'cscope)
 	   (result (semantic-symref-find-tags-by-name name 'project))
@@ -151,12 +151,12 @@ Return a list of tags."
 	(semantic-symref-result-get-tags result))
       )))
 
-(defmethod semanticdb-find-tags-by-name-regexp-method
+(cl-defmethod semanticdb-find-tags-by-name-regexp-method
   ((table semanticdb-table-cscope) regex &optional tags)
   "Find all tags with name matching REGEX in TABLE.
 Optional argument TAGS is a list of tags to search.
 Return a list of tags."
-  (if tags (call-next-method)
+  (if tags (cl-call-next-method)
     (let* ((semantic-symref-tool 'cscope)
 	   (result (semantic-symref-find-tags-by-regexp regex 'project))
 	   )
@@ -164,12 +164,12 @@ Return a list of tags."
 	(semantic-symref-result-get-tags result))
       )))
 
-(defmethod semanticdb-find-tags-for-completion-method
+(cl-defmethod semanticdb-find-tags-for-completion-method
   ((table semanticdb-table-cscope) prefix &optional tags)
   "In TABLE, find all occurrences of tags matching PREFIX.
 Optional argument TAGS is a list of tags to search.
 Returns a table of all matching tags."
-  (if tags (call-next-method)
+  (if tags (cl-call-next-method)
     (let* ((semantic-symref-tool 'cscope)
 	   (result (semantic-symref-find-tags-by-completion prefix 'project))
 	   (faketags nil)
@@ -190,21 +190,21 @@ Returns a table of all matching tags."
 ;; alone, otherwise replace with implementations similar to those
 ;; above.
 ;;
-(defmethod semanticdb-deep-find-tags-by-name-method
+(cl-defmethod semanticdb-deep-find-tags-by-name-method
   ((table semanticdb-table-cscope) name &optional tags)
   "Find all tags name NAME in TABLE.
 Optional argument TAGS is a list of tags to search.
 Like `semanticdb-find-tags-by-name-method' for cscope."
   (semanticdb-find-tags-by-name-method table name tags))
 
-(defmethod semanticdb-deep-find-tags-by-name-regexp-method
+(cl-defmethod semanticdb-deep-find-tags-by-name-regexp-method
   ((table semanticdb-table-cscope) regex &optional tags)
   "Find all tags with name matching REGEX in TABLE.
 Optional argument TAGS is a list of tags to search.
 Like `semanticdb-find-tags-by-name-method' for cscope."
   (semanticdb-find-tags-by-name-regexp-method table regex tags))
 
-(defmethod semanticdb-deep-find-tags-for-completion-method
+(cl-defmethod semanticdb-deep-find-tags-for-completion-method
   ((table semanticdb-table-cscope) prefix &optional tags)
   "In TABLE, find all occurrences of tags matching PREFIX.
 Optional argument TAGS is a list of tags to search.

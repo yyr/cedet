@@ -288,7 +288,7 @@ Return a list ((DB-TABLE . TOKEN-OR-TOKEN-LIST) ...)."
 ;; These are the base routines for searching semantic databases.
 ;; Overload these with your subclasses to participate in the searching
 ;; mechanism.
-(defmethod semanticdb-find-nonterminal-by-token-method
+(cl-defmethod semanticdb-find-nonterminal-by-token-method
   ((database semanticdb-project-database) token search-parts search-includes diff-mode find-file-match)
   "OBSOLETE:
 In DB, find all occurances of nonterminals with token TOKEN in databases.
@@ -301,7 +301,7 @@ Return a list ((DB-TABLE . TOKEN-LIST) ...)."
 		(semantic-brute-find-tag-by-class goofy-token-name stream sp si))
      search-parts search-includes diff-mode find-file-match)))
 
-(defmethod semanticdb-find-nonterminal-by-name-method
+(cl-defmethod semanticdb-find-nonterminal-by-name-method
   ((database semanticdb-project-database) name search-parts search-includes diff-mode find-file-match)
   "OBSOLETE:
 Find all occurances of nonterminals with name NAME in databases.
@@ -314,7 +314,7 @@ Return a list ((DB-TABLE . TOKEN) ...)."
      (semantic-brute-find-first-tag-by-name name stream sp si))
    search-parts search-includes diff-mode find-file-match))
 
-(defmethod semanticdb-find-nonterminal-by-name-regexp-method
+(cl-defmethod semanticdb-find-nonterminal-by-name-regexp-method
   ((database semanticdb-project-database) regex search-parts search-includes diff-mode find-file-match)
   "OBSOLETE:
 Find all occurances of nonterminals with name matching REGEX in databases.
@@ -327,7 +327,7 @@ Return a list ((DB-TABLE . TOKEN-LIST) ...)."
      (semantic-brute-find-tag-by-name-regexp regex stream sp si))
    search-parts search-includes diff-mode find-file-match))
 
-(defmethod semanticdb-find-nonterminal-by-type-method
+(cl-defmethod semanticdb-find-nonterminal-by-type-method
   ((database semanticdb-project-database) type search-parts search-includes diff-mode find-file-match)
   "OBSOLETE:
 Find all nonterminals with a type of TYPE in databases.
@@ -340,7 +340,7 @@ Return a list ((DB-TABLE . TOKEN-LIST) ...)."
      (semantic-brute-find-tag-by-type type stream sp si))
    search-parts search-includes diff-mode find-file-match))
 
-(defmethod semanticdb-find-nonterminal-by-property-method
+(cl-defmethod semanticdb-find-nonterminal-by-property-method
   ((database semanticdb-project-database) property value search-parts search-includes diff-mode find-file-match)
   "OBSOLETE:
 Find all nonterminals with a PROPERTY equal to VALUE in databases.
@@ -353,7 +353,7 @@ Return a list ((DB-TABLE . TOKEN-LIST) ...)."
      (semantic-brute-find-tag-by-property property value stream sp si))
    search-parts search-includes diff-mode find-file-match))
 
-(defmethod semanticdb-find-nonterminal-by-extra-spec-method
+(cl-defmethod semanticdb-find-nonterminal-by-extra-spec-method
   ((database semanticdb-project-database) spec search-parts search-includes diff-mode find-file-match)
   "OBSOLETE:
 Find all nonterminals with a SPEC in databases.
@@ -366,7 +366,7 @@ Return a list ((DB-TABLE . TOKEN-LIST) ...)."
      (semantic-brute-find-tag-by-attribute spec stream sp si))
    search-parts search-includes diff-mode find-file-match))
 
-(defmethod semanticdb-find-nonterminal-by-extra-spec-value-method
+(cl-defmethod semanticdb-find-nonterminal-by-extra-spec-value-method
   ((database semanticdb-project-database) spec value search-parts search-includes diff-mode find-file-match)
   "OBSOLETE:
 Find all nonterminals with a SPEC equal to VALUE in databases.
@@ -381,7 +381,7 @@ Return a list ((DB-TABLE . TOKEN-LIST) ...)."
 
 ;;; Advanced Searches
 ;;
-(defmethod semanticdb-find-nonterminal-external-children-of-type-method
+(cl-defmethod semanticdb-find-nonterminal-external-children-of-type-method
   ((database semanticdb-project-database) type search-parts search-includes diff-mode find-file-match)
   "OBSOLETE:
 Find all nonterminals which are child elements of TYPE
@@ -401,7 +401,7 @@ Return a list ((DB-TABLE . TOKEN-LIST) ...)."
 
 ;;; Generic Search
 ;;
-(defmethod semanticdb-find-nonterminal-by-function-method
+(cl-defmethod semanticdb-find-nonterminal-by-function-method
   ((database semanticdb-project-database)
    function &optional search-parts search-includes diff-mode find-file-match)
   "OBSOLETE:

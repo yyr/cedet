@@ -88,14 +88,14 @@ classpath.")
   "EDE Ant project class."
   :method-invocation-order :depth-first)
 
-(defmethod initialize-instance ((this ede-ant-project)
+(cl-defmethod initialize-instance ((this ede-ant-project)
                                 &rest fields)
   "Make sure the :targets is setup."
-  (call-next-method)
+  (cl-call-next-method)
   (ede-normalize-file/directory this ede-ant-project-file-name)
   )
 
-(defmethod project-compile-project ((proj ede-ant-project) &optional command)
+(cl-defmethod project-compile-project ((proj ede-ant-project) &optional command)
   "Compile the entire current project Proj.
 Argument COMMAND is the command to use when compiling."
   ;; we need to be in the proj root dir for this to work
@@ -109,7 +109,7 @@ Argument COMMAND is the command to use when compiling."
 ;;; Classpath-related stuff
 ;; TODO: how to find include .jars? cedet-files-list-recursively is tooo slow for big file
 ;; trees. Maybe it's better to use find instead?
-(defmethod ede-java-classpath ((proj ede-ant-project))
+(cl-defmethod ede-java-classpath ((proj ede-ant-project))
   "Get classpath for Ant project"
   (let ((dir (ede-project-root-directory proj))
 	(ret nil))
@@ -126,7 +126,7 @@ Argument COMMAND is the command to use when compiling."
 	    (oset proj :classpath jar-files))
 	  jar-files)))))
 
-(defmethod ede-source-paths ((proj ede-ant-project) mode)
+(cl-defmethod ede-source-paths ((proj ede-ant-project) mode)
   "Get the base to all source trees in the current project."
   (let ((dir (ede-project-root-directory proj)))
     (if (oref proj :srcroot)
@@ -149,17 +149,17 @@ Argument COMMAND is the command to use when compiling."
 	(nreverse src-dirs)))))
 
 ;; TODO: extract targets, etc.
-(defmethod project-rescan ((proj ede-ant-project))
+(cl-defmethod project-rescan ((proj ede-ant-project))
   "Rescan the EDE proj project THIS."
   (when (ede-jvm-base-file-updated-p proj)
     ;; TODO: fill information
     ))
 
 ;; How to handle, when we have several files with the same name?
-(defmethod ede-expand-filename-impl ((proj ede-ant-project) name)
+(cl-defmethod ede-expand-filename-impl ((proj ede-ant-project) name)
   "Within this project PROJ, find the file NAME.
 This knows details about or source tree."
-  (let ((ans (call-next-method))) ;; using locatedb, etc
+  (let ((ans (cl-call-next-method))) ;; using locatedb, etc
     (unless ans
       (let* ((dir (ede-project-root-directory proj))
 	     (src (or (oref proj :srcroot) '("")))

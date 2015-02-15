@@ -153,10 +153,10 @@ All directories with filesshould have at least one target.")
    )
   "Project for Android applications.")
 
-(defmethod initialize-instance ((this ede-android-project)
+(cl-defmethod initialize-instance ((this ede-android-project)
 				&rest fields)
   "Make sure the targets slot is bound."
-  (call-next-method)
+  (cl-call-next-method)
   (unless (slot-boundp this 'targets)
     ;; @TODO - All android projects are the same, so we can probably
     ;; prepopulate this whole thing right off.
@@ -175,12 +175,12 @@ All directories with filesshould have at least one target.")
       (message "You may run into problems in this project if there is no manifest file.")))
   )
 
-(defmethod ede-commit-project ((proj ede-android-project))
+(cl-defmethod ede-commit-project ((proj ede-android-project))
   "Commit any change to the Android project PROJ to its file."
   ;; TODO - Can I save other suff, like version numbers?
   )
 
-(defmethod project-rescan ((this ede-android-project))
+(cl-defmethod project-rescan ((this ede-android-project))
   "Rescan the EDE proj project THIS."
   (let ((scan (ede-android-project-data (file-name-directory (oref this file)))))
     (oset this name (car scan))
@@ -191,16 +191,16 @@ All directories with filesshould have at least one target.")
 ;;
 ;; Android projects have a root and one project, but no sub projects.
 ;; These hacks allow this to work quickly and simply.
-(defmethod ede-project-root-directory ((this ede-android-project)
+(cl-defmethod ede-project-root-directory ((this ede-android-project)
 				       &optional file)
   "Return the root for THIS Android project with file."
   (file-name-directory (oref this file)))
 
-(defmethod ede-project-root ((this ede-android-project))
+(cl-defmethod ede-project-root ((this ede-android-project))
   "Return my root."
   this)
 
-(defmethod ede-find-subproject-for-directory ((proj ede-android-project)
+(cl-defmethod ede-find-subproject-for-directory ((proj ede-android-project)
 					      dir)
   "Return PROJ, for handling all subdirs below DIR."
   proj)
@@ -217,7 +217,7 @@ All directories with filesshould have at least one target.")
       ))
     match))
 
-(defmethod ede-find-target ((proj ede-android-project) buffer)
+(cl-defmethod ede-find-target ((proj ede-android-project) buffer)
   "Find an EDE target in PROJ for BUFFER.
 If one doesn't exist, create a new one for this directory."
   (let* ((ext (file-name-extension (buffer-file-name buffer)))
@@ -245,7 +245,7 @@ If one doesn't exist, create a new one for this directory."
 
 ;;; Include paths
 ;;
-(defmethod ede-system-include-path ((this ede-android-target-java))
+(cl-defmethod ede-system-include-path ((this ede-android-target-java))
   "Get the system include path used by target THIS."
   ;; Get android.jar, and add it.  but how??
   nil)
@@ -254,9 +254,9 @@ If one doesn't exist, create a new one for this directory."
   "Return the file NAME if it exists as a file."
   (if (file-exists-p name) name))
 
-(defmethod ede-expand-filename-impl ((proj ede-android-project) name)
+(cl-defmethod ede-expand-filename-impl ((proj ede-android-project) name)
   "Within this android project, expand filename NAME."
-  (let ((ans (call-next-method)) ; locate feature
+  (let ((ans (cl-call-next-method)) ; locate feature
 	)
     (unless ans
       (let ((pr (ede-project-root-directory proj))
@@ -287,7 +287,7 @@ If one doesn't exist, create a new one for this directory."
 	))
     ans))
 
-(defmethod ede-source-paths ((proj ede-android-project) mode)
+(cl-defmethod ede-source-paths ((proj ede-android-project) mode)
   "Get the base to all source trees in the current projet for MODE.
 For java, this is both src and gen.  For xml, it is just res."
   (let ((pr (ede-project-root-directory proj)))
@@ -301,7 +301,7 @@ For java, this is both src and gen.  For xml, it is just res."
 	    (ede-android-fname-if-exists (expand-file-name "res" pr))))
 	  (t nil))))
 
-(defmethod ede-java-classpath ((this ede-android-project))
+(cl-defmethod ede-java-classpath ((this ede-android-project))
   "Return the classpath for this project.
 For Android projects, look to the SDK android.jar."
   ;; @TODO - does the local project get some libs or jars or something?
@@ -317,28 +317,28 @@ Uses an active configuration and adds the INSTALL target."
 
 ;;; Basic Compile/Debug Commands
 ;;
-(defmethod project-compile-project ((proj ede-android-project) &optional command)
+(cl-defmethod project-compile-project ((proj ede-android-project) &optional command)
   "Compile the Android project with ant.
 Argument COMMAND is the command to use when compiling."
   (let ((default-directory (ede-project-root-directory proj)))
     (compile (concat "ant clean " (oref proj configuration-default)
 		     (or command "")))))
   
-(defmethod project-compile-target ((proj ede-android-target-java) &optional command)
+(cl-defmethod project-compile-target ((proj ede-android-target-java) &optional command)
   "Compile the current Android java target with ant on the project.
 Argument COMMAND is the command to use when compiling."
   (project-compile-project (ede-current-project) command))
   
-(defmethod project-compile-target ((proj ede-android-target-xml) &optional command)
+(cl-defmethod project-compile-target ((proj ede-android-target-xml) &optional command)
   "Compile the current Android java target with ant on the project.
 Argument COMMAND is the command to use when compiling."
   (project-compile-project (ede-current-project) command))
 
-(defmethod project-debug-target ((targ ede-android-target-java))
+(cl-defmethod project-debug-target ((targ ede-android-target-java))
   "Start debugging the current project."
   (ede-android-debug-project (ede-project-root-directory (ede-current-project))))
 
-(defmethod project-debug-target ((targ ede-android-target-xml))
+(cl-defmethod project-debug-target ((targ ede-android-target-xml))
   "Start debugging the current project."
   (ede-android-debug-project (ede-project-root-directory (ede-current-project))))
 

@@ -57,11 +57,11 @@ the package node.")
 Packages represent other class diagrams, and list the major nodes
 within them.  They can be linked by dependency links.")
 
-(defmethod cogre-node-rebuild-default ((node cogre-package))
+(cl-defmethod cogre-node-rebuild-default ((node cogre-package))
   "Create the text rectangle for the COGRE package.
 Calls the base method, and takes the return argument and
 tweaks the faces."
-  (let* ((rect (call-next-method))
+  (let* ((rect (cl-call-next-method))
 	 (first (car rect))
 	 (second (car (cdr rect))))
     ;; Tweak the first and second string iff it is long enough.
@@ -87,11 +87,11 @@ Notes are used to add annotations inside a graph.
 Notes are generally linked to some node, and are supposed to look
 like a little pieces of paper.")
 
-(defmethod cogre-node-rebuild-default ((node cogre-note))
+(cl-defmethod cogre-node-rebuild-default ((node cogre-note))
   "Create the text rectangle for the COGRE package.
 Calls the base method, and takes the return argument and
 tweaks the faces."
-  (let* ((rect (call-next-method))
+  (let* ((rect (cl-call-next-method))
 	 (first (car rect)))
     (remove-text-properties 0 1 '(face) first)
     (aset first 0 ?/)
@@ -121,7 +121,7 @@ It is a list of the form ( \"LEFTDELIM\" . \"RIGHTDELIM\").")
   "A UML node that has a package specifier within which it is scoped."
   :abstract t)
 
-(defmethod cogre-node-title ((node cogre-scoped-node))
+(cl-defmethod cogre-node-title ((node cogre-scoped-node))
   "Return the title of a scoped node.
 If there is no package name, it is (\"name\").  If there
 is a package, it is ( \"<package>\" \"name\")."
@@ -133,10 +133,10 @@ is a package, it is ( \"<package>\" \"name\")."
 	(list s (oref node object-name)))
     (list (oref node object-name))))
 
-(defmethod cogre-augment-element-menu ((node cogre-scoped-node) menu)
+(cl-defmethod cogre-augment-element-menu ((node cogre-scoped-node) menu)
   "For NODE, augment the current element MENU.
 Return the modified element."
-  (append (call-next-method node menu)
+  (append (cl-call-next-method node menu)
 	  '( [ "Repackage" cogre-set-scoped-node-package t ]
 	     )))
 
@@ -168,7 +168,7 @@ See `attribute' slot for details on the form of each token in this list.")
 Class nodes represent a class, and can list the attributes and methods
 within them.  Classes can have attribute links, and class hierarchy links.")
 
-(defmethod cogre-uml-stoken->uml ((class cogre-class) stoken &optional text)
+(cl-defmethod cogre-uml-stoken->uml ((class cogre-class) stoken &optional text)
   "For CLASS convert a Semantic style token STOKEN into a uml definition.
 It also adds properties that enable editing, and interaction with
 this node.  Optional argument TEXT is a preformatted string."
@@ -197,7 +197,7 @@ this node.  Optional argument TEXT is a preformatted string."
 	    (semantic-format-tag-uml-concise-prototype stoken parent t))))
     (error "Unknown element cogre-class node attribute or method.")))
 
-(defmethod cogre-node-slots ((class cogre-class))
+(cl-defmethod cogre-node-slots ((class cogre-class))
   "Return a list of each section, including title, attributes, and methods.
 Argument CLASS is the class whose slots are referenced."
   (let ((detail (if (eieio-object-p cogre-graph)
@@ -265,10 +265,10 @@ Argument CLASS is the class whose slots are referenced."
 Instances are used in instance diagrams.
 Instances are linked together with plain links.")
 
-(defmethod cogre-node-title ((node cogre-instance))
+(cl-defmethod cogre-node-title ((node cogre-instance))
   "Return a list of strings representing the title of the NODE.
 For example: ( \"Title\" ) or ( \"<Type>\" \"Title\" )"
-  (let* ((prev (call-next-method))
+  (let* ((prev (cl-call-next-method))
 	 (name (concat ":" (oref node object-name))))
     (cogre-string-merge-faces 0 (length name) 'underline name)
     (if (= (length prev) 1)

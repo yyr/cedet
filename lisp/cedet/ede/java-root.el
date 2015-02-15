@@ -199,11 +199,11 @@ Each directory needs a project file to control it.")
 ;; find previous copies of this project, and make sure that one of the
 ;; objects is deleted.
 
-(defmethod initialize-instance ((this ede-java-root-project)
+(cl-defmethod initialize-instance ((this ede-java-root-project)
 				&rest fields)
   "Make sure the :file is fully expanded."
   ;; Add ourselves to the master list
-  (call-next-method)
+  (cl-call-next-method)
   (let ((f (expand-file-name (oref this :file))))
     ;; Remove any previous entries from the main list.
     (let ((old (eieio-instance-tracker-find (file-name-directory f)
@@ -234,7 +234,7 @@ Each directory needs a project file to control it.")
 ;; This is a way to allow a subdirectory to point back to the root
 ;; project, simplifying authoring new single-point projects.
 
-(defmethod ede-find-subproject-for-directory ((proj ede-java-root-project)
+(cl-defmethod ede-find-subproject-for-directory ((proj ede-java-root-project)
 					      dir)
   "Return PROJ, for handling all subdirs below DIR."
   proj)
@@ -244,7 +244,7 @@ Each directory needs a project file to control it.")
 ;; Creating new targets on a per directory basis is a good way to keep
 ;; files organized.  See ede-emacs for an example with multiple file
 ;; types.
-(defmethod ede-find-target ((proj ede-java-root-project) buffer)
+(cl-defmethod ede-find-target ((proj ede-java-root-project) buffer)
   "Find an EDE target in PROJ for BUFFER.
 If one doesn't exist, create a new one for this directory."
   (let* ((targets (oref proj :targets))
@@ -269,10 +269,10 @@ If one doesn't exist, create a new one for this directory."
 ;;
 ;; This tools also uses the ede-locate setup for augmented file name
 ;; lookup using external tools.
-(defmethod ede-expand-filename-impl ((proj ede-java-root-project) name)
+(cl-defmethod ede-expand-filename-impl ((proj ede-java-root-project) name)
   "Within this project PROJ, find the file NAME.
 This knows details about or source tree."
-  (let ((ans (call-next-method))) ;; using locatedb, etc
+  (let ((ans (cl-call-next-method))) ;; using locatedb, etc
     (unless ans
       (let* ((lf (oref proj :locate-fcn))
 	     (dir (ede-project-root-directory proj)))
@@ -299,17 +299,17 @@ This knows details about or source tree."
 	    ))))
     ans))
 
-(defmethod ede-project-root ((this ede-java-root-project))
+(cl-defmethod ede-project-root ((this ede-java-root-project))
   "Return my root."
   this)
 
-(defmethod ede-project-root-directory ((this ede-java-root-project))
+(cl-defmethod ede-project-root-directory ((this ede-java-root-project))
   "Return my root."
   (file-name-directory (oref this :file)))
 
 ;;; Rescan command.
 ;;
-(defmethod project-rescan ((this ede-java-root-project))
+(cl-defmethod project-rescan ((this ede-java-root-project))
   "Don't rescan this project from the sources."
   (message "java-root has nothing to rescan."))
 
@@ -319,7 +319,7 @@ This knows details about or source tree."
 ;; include lists, and Preprocessor symbol tables.
 
 ;; @TODO: should we cache result? or calculate it on project's creation?
-(defmethod ede-java-classpath ((proj ede-java-root-project))
+(cl-defmethod ede-java-classpath ((proj ede-java-root-project))
   "Return the classpath for this project."
   (let ((lf (or (oref proj :locate-fcn) #'expand-file-name))
 	(dir (file-name-directory (oref proj :file)))
@@ -330,7 +330,7 @@ This knows details about or source tree."
 	(setq ret (cons (funcall lf P dir) ret))))
     (append (nreverse ret) (oref proj :classpath))))
 
-(defmethod ede-source-paths ((proj ede-java-root-project) mode)
+(cl-defmethod ede-source-paths ((proj ede-java-root-project) mode)
   "Get the base to all source trees in the current project."
   (let ((dir (file-name-directory (oref proj :file))))
     (mapcar (lambda (x) (concat dir x)) (oref proj :srcroot))))

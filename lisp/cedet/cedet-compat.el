@@ -36,6 +36,15 @@
 
 ;;; Code:
 
+;;; cl-generic
+
+(when (version< emacs-version "25")
+  (let ((default-directory
+	  (expand-file-name "../../etc/fallback-libraries/cl-generic"
+			    (file-name-directory load-file-name)))
+	(load-path (append '(".") load-path)))
+    (load "cl-generic.el" nil t)))
+
 ;;; EIEIO
 
 (when (version< emacs-version "24.3")
