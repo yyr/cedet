@@ -101,15 +101,15 @@
            ;; We could just alias `cl-call-next-method' to `call-next-method',
            ;; and that would work, but then files compiled with this cl-generic
            ;; wouldn't work in Emacs-25 any more.
-           ;; Also we use `labels' rather than one of cl-lib's macros, so as to
-           ;; be compatible with older emacsen (and ELPA's cl-lib emulation
-           ;; doesn't provide cl-flet and provides an incomplete cl-labels).
+           ;; Also we fallback on `labels' if `cl-flet' is not available
+           ;; (ELPA's cl-lib emulation doesn't provide cl-flet).
            ,@(if qualifiers
                  ;; Must be :before or :after, so can't call next-method.
                  body
-               `((cl-labels ((cl-call-next-method (&rest args)
-                                               (apply #'call-next-method args))
-                          (cl-next-method-p () (next-method-p)))
+               `((,(if (fboundp 'cl-flet) 'cl-flet 'labels)
+                      ((cl-call-next-method (&rest args)
+                                            (apply #'call-next-method args))
+                       (cl-next-method-p () (next-method-p)))
                    ,@body))))))))
 
 ;;;; ChangeLog:
